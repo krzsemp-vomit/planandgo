@@ -38,7 +38,7 @@ export async function getPendingOrders(): Promise<QueuedOrder[]> {
   const now = Date.now();
 
   // Get all orders whose sendAfter <= now
-  const ids = await kv.zrangebyscore(QUEUE_KEY, 0, now);
+  const ids = await kv.zrange(QUEUE_KEY, 0, now, { byScore: true });
   if (!ids || ids.length === 0) return [];
 
   const orders: QueuedOrder[] = [];
