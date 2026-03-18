@@ -39,7 +39,7 @@ const BUDGET_LABELS: Record<number, { val: string; desc: string }> = {
 // ——— YOUR EASYCART PRODUCT URL ———
 // Replace with your actual Easycart product checkout URL.
 // Easycart allows passing custom metadata via URL params.
-const EASYCART_BASE_URL = "https://buy.easycart.pl/YOUR_PRODUCT_SLUG";
+const EASYCART_BASE_URL = "https://cart.easy.tools/checkout/73787483/plan-podrozy";
 
 export default function HomePage() {
   const [city, setCity] = useState("");
