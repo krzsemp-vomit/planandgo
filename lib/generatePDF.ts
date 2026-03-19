@@ -56,10 +56,39 @@ function renderAttractionCard(a: Attraction, index: number): string {
     </div>`;
 }
 
+function renderDayHeader(day: TravelPlan["days"][0], routeUrl: string): string {
+  return `
+    <div class="day-header">
+      <div class="day-header-left">
+        <div class="day-badge">DZIEŃ ${day.dayNum}</div>
+        <div class="day-theme">${escapeHtml(day.theme)}</div>
+        <div class="day-hours">⏱ ok. ${day.totalHours} godzin</div>
+      </div>
+      <a href="${escapeHtml(routeUrl)}" class="btn-route">🗺 Otwórz trasę dnia w Google Maps</a>
+    </div>`;
+}
+
 function renderDay(day: TravelPlan["days"][0]): string {
   const routeUrl = buildMapsUrl(day.attractions);
 
-  const attractionsHtml = day.attractions.map((a, i) => renderAttractionCard(a, i + 1)).join("");
+  // Split attractions into chunks of 4 per page, repeat header on each page
+  const CARDS_PER_PAGE = 4;
+  const chunks: typeof day.attractions[] = [];
+  for (let i = 0; i < day.attractions.length; i += CARDS_PER_PAGE) {
+    chunks.push(day.attractions.slice(i, i + CARDS_PER_PAGE));
+  }
+
+  const attractionsHtml = chunks.map((chunk, pageIdx) => {
+    const cardsHtml = chunk.map((a, i) => renderAttractionCard(a, pageIdx * CARDS_PER_PAGE + i + 1)).join("");
+    const header = renderDayHeader(day, routeUrl);
+    const isLast = pageIdx === chunks.length - 1;
+    return `
+      <div class="day-page">
+        ${header}
+        <div class="attractions-grid">${cardsHtml}</div>
+        ${isLast ? "" : "<div class=page-break></div>"}
+      </div>`;
+  }).join("");
 
   const restaurantsHtml = day.restaurants.map((r) => {
     const mapUrl = buildRestaurantMapUrl(r);
@@ -80,15 +109,7 @@ function renderDay(day: TravelPlan["days"][0]): string {
 
   return `
     <div class="day-section">
-      <div class="day-header">
-        <div class="day-header-left">
-          <div class="day-badge">DZIEŃ ${day.dayNum}</div>
-          <div class="day-theme">${escapeHtml(day.theme)}</div>
-          <div class="day-hours">⏱ ok. ${day.totalHours} godzin</div>
-        </div>
-        <a href="${escapeHtml(routeUrl)}" class="btn-route">🗺 Otwórz trasę dnia w Google Maps</a>
-      </div>
-      <div class="attractions-grid">${attractionsHtml}</div>
+      ${attractionsHtml}
       <div class="day-extras">
         <div class="restaurants-block">
           <div class="block-title">🍽 Polecane restauracje</div>
@@ -123,7 +144,7 @@ function buildHtml(plan: TravelPlan): string {
   a { color:inherit; text-decoration:none; }
 
   /* ——— COVER ——— */
-  .cover { background:#1A1710; min-height:100vh; padding:48px; position:relative; display:flex; flex-direction:column; page-break-after:always; }
+  .cover { background:#1A1710; min-height:100vh; padding:36px; position:relative; display:flex; flex-direction:column; page-break-after:always; }
   .cover-gold-bar { position:absolute; left:0; top:0; bottom:0; width:8px; background:#C9A84C; }
   .cover-logo { font-size:13px; font-weight:700; color:#C9A84C; letter-spacing:2px; text-transform:uppercase; margin-bottom:auto; padding-bottom:48px; }
   .cover-city { font-family:'Playfair Display',serif; font-size:68px; font-weight:900; color:#FAF7F2; line-height:1; margin-bottom:12px; }
@@ -140,7 +161,7 @@ function buildHtml(plan: TravelPlan): string {
 
   /* ——— DAY HEADER ——— */
   .day-section { padding:0 0 48px; }
-  .day-header { background:#1A1710; padding:22px 48px; display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; position:relative; }
+  .day-header { background:#1A1710; padding:22px 28px; display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; position:relative; }
   .day-header::before { content:''; position:absolute; left:0; top:0; bottom:0; width:6px; background:#C9A84C; }
   .day-badge { display:inline-block; background:#C9A84C; color:#1A1710; font-size:9px; font-weight:700; letter-spacing:1.5px; padding:4px 12px; border-radius:100px; margin-bottom:6px; }
   .day-theme { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:#FAF7F2; margin-bottom:3px; }
@@ -148,7 +169,7 @@ function buildHtml(plan: TravelPlan): string {
   .btn-route { background:#C9A84C; color:#1A1710 !important; font-size:11.5px; font-weight:700; padding:9px 18px; border-radius:8px; white-space:nowrap; flex-shrink:0; }
 
   /* ——— ATTRACTIONS ——— */
-  .attractions-grid { padding:0 48px; display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:28px; }
+  .attractions-grid { padding:0; display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:28px; }
   .attraction-card {
     background:#FFFFFF; border:1px solid #E8E4DC; border-radius:12px; padding:16px;
     display:flex; gap:12px;
@@ -175,7 +196,7 @@ function buildHtml(plan: TravelPlan): string {
   .btn-map { background:#F0EDE7; color:#1A1710 !important; }
 
   /* ——— EXTRAS ——— */
-  .day-extras { padding:0 48px; display:grid; grid-template-columns:2fr 1fr; gap:18px; }
+  .day-extras { padding:0; display:grid; grid-template-columns:2fr 1fr; gap:18px; }
   .block-title { font-size:12.5px; font-weight:700; color:#1A1710; margin-bottom:10px; }
   .restaurants-block { background:#FFFFFF; border:1px solid #E8E4DC; border-radius:12px; padding:16px; }
   .restaurants-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
@@ -193,13 +214,13 @@ function buildHtml(plan: TravelPlan): string {
   .transport-tip { font-size:9.5px; color:#6B6560; margin-top:2px; font-style:italic; }
 
   /* ——— TIPS ——— */
-  .tips-section { padding:48px; page-break-before:always; }
+  .tips-section { padding:0; page-break-before:always; }
   .tips-header { background:#1A1710; padding:18px 28px; border-radius:12px; margin-bottom:16px; position:relative; overflow:hidden; }
   .tips-header::before { content:''; position:absolute; left:0; top:0; bottom:0; width:6px; background:#C9A84C; }
   .tips-header h2 { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:#FAF7F2; padding-left:10px; }
   .tip-item { background:#FFFFFF; border:1px solid #E8E4DC; border-left:4px solid #C9A84C; border-radius:8px; padding:11px 14px; font-size:12px; color:#3A3630; line-height:1.6; margin-bottom:8px; page-break-inside:avoid; break-inside:avoid; }
 
-  .page-footer { text-align:center; padding:18px 48px; font-size:10px; color:#B0AC9F; border-top:1px solid #E8E4DC; margin-top:16px; }
+  .page-footer { text-align:center; padding:18px 0; font-size:10px; color:#B0AC9F; border-top:1px solid #E8E4DC; margin-top:16px; }
   .page-break { page-break-after:always; }
 </style>
 </head>
@@ -250,7 +271,7 @@ export async function generatePDF(plan: TravelPlan): Promise<Buffer> {
     body: JSON.stringify({
       source: html,
       format: "A4",
-      margin: { top: 0, bottom: 0, left: 0, right: 0 },
+      margin: { top: "12mm", bottom: "12mm", left: "14mm", right: "14mm" },
     }),
   });
 
