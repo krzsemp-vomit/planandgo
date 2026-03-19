@@ -165,7 +165,7 @@ Zasady których MUSISZ przestrzegać:
 
   const response = await client.messages.create({
     model: "claude-sonnet-4-20250514",
-    max_tokens: 6000,
+    max_tokens: 8000,
     messages: [{ role: "user", content: prompt }],
   });
 
@@ -173,5 +173,13 @@ Zasady których MUSISZ przestrzegać:
     .map((b) => (b.type === "text" ? b.text : ""))
     .join("");
   const clean = rawText.replace(/```json|```/g, "").trim();
-  return JSON.parse(clean) as TravelPlan;
+
+  try {
+    return JSON.parse(clean) as TravelPlan;
+  } catch (e) {
+    // Log truncated JSON for debugging
+    console.error("[generatePlan] JSON parse error. Response length:", clean.length);
+    console.error("[generatePlan] Last 200 chars:", clean.slice(-200));
+    throw new Error(`JSON parse failed — response likely truncated. Length: ${clean.length}. Error: ${e}`);
+  }
 }
