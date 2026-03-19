@@ -231,8 +231,6 @@ export async function generatePDF(plan: TravelPlan): Promise<Buffer> {
       source: html,
       format: "A4",
       margin: { top: 0, bottom: 0, left: 0, right: 0 },
-      print_background: true,
-      use_print: false,
     }),
   });
 
