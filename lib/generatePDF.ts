@@ -69,7 +69,7 @@ function renderDay(day: TravelPlan["days"][0]): string {
     .map((r) => `
       <div class="restaurant-item">
         <div class="restaurant-name">${escapeHtml(r.name)}</div>
-        <div class="restaurant-type">${escapeHtml(r.type)}</div>
+        <div class="restaurant-type">${escapeHtml(r.cuisine || "")}${r.priceRange ? " · " + r.priceRange : ""}</div>
       </div>`).join("");
 
   const transportHtml = day.transport
