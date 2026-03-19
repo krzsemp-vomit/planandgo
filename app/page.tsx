@@ -79,6 +79,16 @@ export default function HomePage() {
 
   const budgetPct = ((budget - 1) / 2) * 100;
 
+  function chipStyle(active: boolean): React.CSSProperties {
+    return {
+      padding: "7px 16px", borderRadius: 100, cursor: "pointer",
+      border: `1.5px solid ${active ? "#1A1710" : "#E0DDD7"}`,
+      background: active ? "#1A1710" : "#fff",
+      color: active ? "#C9A84C" : "#8A8479",
+      fontSize: 13, fontWeight: 500, fontFamily: "inherit", transition: "all 0.15s",
+    };
+  }
+
   const s: Record<string, React.CSSProperties> = {
     body: { fontFamily: "'Inter',system-ui,sans-serif", background: "#FAF7F2", color: "#1A1710", minHeight: "100vh" },
     header: { background: "#1A1710", padding: "0 48px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 72, position: "sticky" as const, top: 0, zIndex: 100 },
@@ -87,13 +97,7 @@ export default function HomePage() {
     section: { maxWidth: 860, margin: "0 auto", padding: "0 24px 80px" },
     label: { fontSize: 13, fontWeight: 600, display: "block", marginBottom: 8, color: "#1A1710" },
     input: { width: "100%", padding: "13px 16px", borderRadius: 10, border: "1.5px solid #E0DDD7", fontSize: 15, fontFamily: "inherit", outline: "none", background: "#fff" },
-    chip: (active: boolean) => ({
-      padding: "7px 16px", borderRadius: 100, cursor: "pointer",
-      border: `1.5px solid ${active ? "#1A1710" : "#E0DDD7"}`,
-      background: active ? "#1A1710" : "#fff",
-      color: active ? "#C9A84C" : "#8A8479",
-      fontSize: 13, fontWeight: 500, fontFamily: "inherit", transition: "all 0.15s",
-    }),
+
   };
 
   return (
@@ -198,7 +202,7 @@ export default function HomePage() {
           <label style={s.label}>Zainteresowania</label>
           <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
             {INTERESTS.map(({ val, label }) => (
-              <button key={val} onClick={() => toggle(val, interests, setInterests)} style={s.chip(interests.includes(val))}>{label}</button>
+              <button key={val} onClick={() => toggle(val, interests, setInterests)} style={chipStyle(interests.includes(val))}>{label}</button>
             ))}
           </div>
         </div>
@@ -208,7 +212,7 @@ export default function HomePage() {
           <label style={s.label}>Preferowane kuchnie <span style={{ fontWeight: 400, color: "#8A8479" }}>(opcjonalnie)</span></label>
           <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
             {CUISINES.map(({ val, label }) => (
-              <button key={val} onClick={() => toggle(val, cuisines, setCuisines)} style={s.chip(cuisines.includes(val))}>{label}</button>
+              <button key={val} onClick={() => toggle(val, cuisines, setCuisines)} style={chipStyle(cuisines.includes(val))}>{label}</button>
             ))}
           </div>
         </div>
@@ -218,7 +222,7 @@ export default function HomePage() {
           <label style={s.label}>Styl podróżowania</label>
           <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
             {STYLES.map(({ val, label }) => (
-              <button key={val} onClick={() => toggle(val, styles, setStyles)} style={s.chip(styles.includes(val))}>{label}</button>
+              <button key={val} onClick={() => toggle(val, styles, setStyles)} style={chipStyle(styles.includes(val))}>{label}</button>
             ))}
           </div>
         </div>
